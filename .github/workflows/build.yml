@@ -25,5 +25,4 @@ jobs:
         uses: flipperdevices/flipperzero-ufbt-action@v0.1
         with:
           # skip SDK setup, we already did it in previous step
-          skip-setup: true
           task: lint
