@@ -7,9 +7,7 @@
 // ---------------------------------------------------------------------------
 // Constructor
 // ---------------------------------------------------------------------------
-EEPROM24Cxx::EEPROM24Cxx(uint8_t i2c_address_7bit,
-                         EEPROMAddrWidth addr_width,
-                         uint8_t page_size)
+EEPROM24Cxx::EEPROM24Cxx(uint8_t i2c_address_7bit, EEPROMAddrWidth addr_width, uint8_t page_size)
     : _i2c_addr_8bit(i2c_address_7bit << 1)
     , _addr_width(addr_width)
     , _page_size(page_size) {
@@ -20,7 +18,7 @@ EEPROM24Cxx::EEPROM24Cxx(uint8_t i2c_address_7bit,
 // ---------------------------------------------------------------------------
 void EEPROM24Cxx::setChipParams(EEPROMAddrWidth addr_width, uint8_t page_size) {
     _addr_width = addr_width;
-    _page_size  = page_size;
+    _page_size = page_size;
 }
 
 // ---------------------------------------------------------------------------
@@ -65,10 +63,10 @@ bool EEPROM24Cxx::readByte(uint16_t memory_addr, uint8_t& data) {
     if(_addr_width == EEPROM_ADDR_2BYTE) {
         addr_buf[0] = (uint8_t)(memory_addr >> 8);
         addr_buf[1] = (uint8_t)(memory_addr & 0xFF);
-        addr_len    = 2;
+        addr_len = 2;
     } else {
         addr_buf[0] = (uint8_t)(memory_addr & 0xFF);
-        addr_len    = 1;
+        addr_len = 1;
     }
 
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_external);
@@ -111,10 +109,10 @@ bool EEPROM24Cxx::readBytes(uint16_t start_addr, uint8_t* buffer, uint16_t lengt
     if(_addr_width == EEPROM_ADDR_2BYTE) {
         addr_buf[0] = (uint8_t)(start_addr >> 8);
         addr_buf[1] = (uint8_t)(start_addr & 0xFF);
-        addr_len    = 2;
+        addr_len = 2;
     } else {
         addr_buf[0] = (uint8_t)(start_addr & 0xFF);
-        addr_len    = 1;
+        addr_len = 1;
     }
 
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_external);
@@ -156,11 +154,11 @@ bool EEPROM24Cxx::writeByte(uint16_t memory_addr, uint8_t data) {
         buf[0] = (uint8_t)(memory_addr >> 8);
         buf[1] = (uint8_t)(memory_addr & 0xFF);
         buf[2] = data;
-        len    = 3;
+        len = 3;
     } else {
         buf[0] = (uint8_t)(memory_addr & 0xFF);
         buf[1] = data;
-        len    = 2;
+        len = 2;
     }
 
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_external);
@@ -193,26 +191,24 @@ bool EEPROM24Cxx::writeBytes(uint16_t start_addr, const uint8_t* buffer, uint16_
 
     // Maximum tx buffer: 2 addr bytes + one full page of data
     // The largest page we support is 128 bytes (24C512), so 130 bytes total.
-    uint8_t  tx_buf[2 + 128];
+    uint8_t tx_buf[2 + 128];
     uint16_t written = 0;
 
     while(written < length) {
-        uint16_t cur_addr    = start_addr + written;
+        uint16_t cur_addr = start_addr + written;
         // Bytes remaining until the next page boundary
         uint16_t page_offset = cur_addr % _page_size;
         uint16_t space_in_page = _page_size - page_offset;
-        uint16_t chunk = (length - written < space_in_page)
-                             ? (length - written)
-                             : space_in_page;
+        uint16_t chunk = (length - written < space_in_page) ? (length - written) : space_in_page;
 
         // Build the TX buffer: [addrH,] addrL, data...
         uint8_t header_len;
         if(_addr_width == EEPROM_ADDR_2BYTE) {
-            tx_buf[0]  = (uint8_t)(cur_addr >> 8);
-            tx_buf[1]  = (uint8_t)(cur_addr & 0xFF);
+            tx_buf[0] = (uint8_t)(cur_addr >> 8);
+            tx_buf[1] = (uint8_t)(cur_addr & 0xFF);
             header_len = 2;
         } else {
-            tx_buf[0]  = (uint8_t)(cur_addr & 0xFF);
+            tx_buf[0] = (uint8_t)(cur_addr & 0xFF);
             header_len = 1;
         }
         memcpy(&tx_buf[header_len], buffer + written, chunk);
@@ -246,9 +242,8 @@ bool EEPROM24Cxx::eraseAll(uint32_t total_size) {
     memset(page_buf, 0xFF, sizeof(page_buf));
 
     for(uint32_t addr = 0; addr < total_size; addr += _page_size) {
-        uint16_t chunk = (total_size - addr < _page_size)
-                             ? (uint16_t)(total_size - addr)
-                             : _page_size;
+        uint16_t chunk = (total_size - addr < _page_size) ? (uint16_t)(total_size - addr) :
+                                                            _page_size;
         if(!writeBytes((uint16_t)addr, page_buf, chunk)) return false;
     }
     return true;

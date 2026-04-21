@@ -19,17 +19,18 @@ typedef enum {
 
 class EEPROM24Cxx {
 private:
-    uint8_t         _i2c_addr_8bit;
+    uint8_t _i2c_addr_8bit;
     EEPROMAddrWidth _addr_width;
-    uint8_t         _page_size;
+    uint8_t _page_size;
 
 public:
     // addr_width : EEPROM_ADDR_1BYTE for <=24C16, EEPROM_ADDR_2BYTE for >=24C32
     // page_size  : 8 for 24C01/02, 16 for 24C04-16, 32 for 24C32/64,
     //              64 for 24C128/256, 128 for 24C512
-    EEPROM24Cxx(uint8_t i2c_address_7bit,
-                EEPROMAddrWidth addr_width = EEPROM_ADDR_1BYTE,
-                uint8_t page_size = 8);
+    EEPROM24Cxx(
+        uint8_t i2c_address_7bit,
+        EEPROMAddrWidth addr_width = EEPROM_ADDR_1BYTE,
+        uint8_t page_size = 8);
 
     bool init();
     bool isAvailable();
@@ -43,10 +44,12 @@ public:
     bool eraseAll(uint32_t total_size);
     bool eraseRange(uint16_t start_addr, uint16_t length);
 
-    void    setAddress(uint8_t i2c_address_7bit);
+    void setAddress(uint8_t i2c_address_7bit);
     uint8_t getAddress() const;
 
     // Update chip parameters at runtime when the user changes chip type
-    void    setChipParams(EEPROMAddrWidth addr_width, uint8_t page_size);
-    uint8_t getPageSize() const { return _page_size; }
+    void setChipParams(EEPROMAddrWidth addr_width, uint8_t page_size);
+    uint8_t getPageSize() const {
+        return _page_size;
+    }
 };
